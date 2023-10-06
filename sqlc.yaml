@@ -1,0 +1,103 @@
+version: "2"
+
+
+overrides:
+  go:
+    overrides:
+      - go_type: "string"
+        db_type: "uuid"
+
+      - db_type: "uuid"
+        engine: "postgresql"
+        nullable: true
+        go_type:
+          import: "github.com/google/uuid"
+          package: "uuid"
+          type: "NullUUID"
+
+      - db_type: "date"
+        engine: "postgresql"
+        nullable: true
+        go_type:
+          import: "gopkg.in/guregu/null.v4"
+          package: "null"
+          type: "Time"
+
+      - db_type: "pg_catalog.timestamp"
+        engine: "postgresql"
+        nullable: true
+        go_type:
+          import: "gopkg.in/guregu/null.v4"
+          package: "null"
+          type: "Time"
+
+      - db_type: "timestamptz"
+        engine: "postgresql"
+        go_type:
+          import: "time"
+          type: "Time"
+
+      - db_type: "timestamptz"
+        engine: "postgresql"
+        nullable: true
+        go_type:
+          import: "gopkg.in/guregu/null.v4"
+          package: "null"
+          type: "Time"
+
+      - db_type: "pg_catalog.varchar"
+        nullable: true
+        go_type:
+          import: "gopkg.in/guregu/null.v4"
+          type: "String"
+          package: "null"
+
+      - db_type: "text"
+        nullable: true
+        go_type:
+          import: "gopkg.in/guregu/null.v4"
+          type: "String"
+          package: "null"
+
+      - db_type: "pg_catalog.bool"
+        nullable: true
+        go_type:
+          import: "gopkg.in/guregu/null.v4"
+          type: "Bool"
+          package: "null"
+
+      - db_type: "pg_catalog.float8"
+        nullable: true
+        go_type:
+          import: "gopkg.in/guregu/null.v4"
+          type: "Float"
+          package: "null"
+
+      - db_type: "pg_catalog.int4"
+        nullable: true
+        go_type:
+          import: "gopkg.in/guregu/null.v4"
+          type: "Int"
+          package: "null"
+
+      - db_type: "pg_catalog.int8"
+        nullable: true
+        go_type:
+          import: "gopkg.in/guregu/null.v4"
+          type: "Int"
+          package: "null"
+
+sql:
+- schema: "repository/pgstore/migration"
+  queries: "repository/pgstore/query"
+  engine: "postgresql"
+  gen:
+    go: 
+      package: "sqlc"
+      out: "repository/pgstore/sqlc"
+      sql_package: "pgx/v5"
+      emit_json_tags: true
+      emit_exact_table_names: true
+      emit_empty_slices: true
+      emit_interface: true
+    
