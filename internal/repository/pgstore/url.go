@@ -45,11 +45,6 @@ func (store *PgStore) GetOrgUrlByShort(ctx context.Context, shortUrl string) (do
 		return url, err
 	}
 
-	err = store.querier(ctx).IncrementClick(ctx, dbUrl.ID)
-	if err != nil {
-		return url, err
-	}
-
 	err = mapper.Map(dbUrl, &url)
 	return url, err
 }
@@ -66,7 +61,6 @@ func (store *PgStore) ListUserUrls(ctx context.Context, userId, limit, offset in
 		Limit:  limit,
 		Offset: offset,
 	})
-
 	if err != nil {
 		return urls, nil
 	}

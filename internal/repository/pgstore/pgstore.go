@@ -10,7 +10,7 @@ type PgStore struct {
 	q    sqlc.Querier
 }
 
-func New(pool *pgxpool.Pool) *PgStore {
+func NewPgStore(pool *pgxpool.Pool) *PgStore {
 	return &PgStore{
 		pool: pool,
 		q:    sqlc.New(pool),

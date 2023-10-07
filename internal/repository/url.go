@@ -31,6 +31,10 @@ func (ur *urlRepository) GetOrgUrlByShort(ctx context.Context, shortUrl string) 
 		if err != nil {
 			return "", err
 		}
+		err = ur.store.IncrementClick(ctx, dbUrl.ID)
+		if err != nil {
+			return "", err
+		}
 		ur.cache.CreateUrl(ctx, dbUrl)
 		return dbUrl.OrgUrl, nil
 	}

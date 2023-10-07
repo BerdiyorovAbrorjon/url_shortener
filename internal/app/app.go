@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/BerdiyorovAbrorjon/url-shortener/config"
 	"github.com/BerdiyorovAbrorjon/url-shortener/internal/repository"
@@ -22,7 +21,7 @@ import (
 )
 
 func Run() {
-	cfg, err := config.NewConfig()
+	cfg, err := config.NewConfig(".")
 	if err != nil {
 		log.Fatal("app - Run - config.NewConfig: %w", err)
 	}
@@ -44,8 +43,8 @@ func Run() {
 	l.Info("Connected to redis...")
 
 	//DB & Cache
-	pgStore := pgstore.New(dbPool)
-	redisCache := rediscache.NewRedisCache(rdb, time.Hour)
+	pgStore := pgstore.NewPgStore(dbPool)
+	redisCache := rediscache.NewRedisCache(rdb, cfg.RedisExpiration)
 
 	//Repo
 	userRepo := repository.NewUserRepository(pgStore)
