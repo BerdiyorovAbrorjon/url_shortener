@@ -12,6 +12,16 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// @Summary     CreateUrl
+// @Description Create new url
+// @Tags  	    urls
+// @Accept      json
+// @Produce     json
+// @Param 		Authorization	header 	string  true "Authorization header using the Bearer scheme"
+// @Param 		EnterDetails	body 	domain.CreateUrlRequest true "CreateUrl"
+// @Success     200 {object} domain.Url
+// @Failure     500 {object} ErrorResponse
+// @Router      /urls [POST]
 func (h *Handler) createUrl(ctx *gin.Context) {
 	var req domain.CreateUrlRequest
 
@@ -39,6 +49,17 @@ func (h *Handler) createUrl(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, url)
 }
 
+// @Summary     GetUrlById
+// @Description Get url by id
+// @Tags  	    urls
+// @Accept      json
+// @Produce     json
+// @Param 		Authorization	header 	string  true "Authorization header using the Bearer scheme"
+// @Param 		id	path 	int true "ID"
+// @Param 		EnterDetails	body 	domain.GetUrlByIdRequest true "GetUrlById"
+// @Success     200 {object} domain.ListUserUrlsResponse
+// @Failure     500 {object} ErrorResponse
+// @Router      /urls [GET]
 func (h *Handler) getUrlById(ctx *gin.Context) {
 	var req domain.GetUrlByIdRequest
 
@@ -68,6 +89,55 @@ func (h *Handler) getUrlById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, url)
 }
 
+// @Summary     ListUserUrls
+// @Description Get urls of user
+// @Tags  	    urls
+// @Accept      json
+// @Produce     json
+// @Param 		Authorization	header 	string  true "Authorization header using the Bearer scheme"
+// @Param 		EnterDetails	body 	domain.ListUserUrlsRequest true "ListUserUrls"
+// @Success     200 {object} domain.ListUserUrlsResponse
+// @Failure     500 {object} ErrorResponse
+// @Router      /urls [GET]
+func (server *Handler) listUserUrls(ctx *gin.Context) {
+	var req domain.ListUserUrlsRequest
+
+	err := ctx.ShouldBindJSON(&req)
+
+	if handleBindErr(ctx, err) {
+		return
+	}
+
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+
+	urls, err := server.service.User.ListUserUrls(ctx, authPayload.UserID, req.Limit, req.Offset)
+	if err == sql.ErrNoRows {
+		ctx.JSON(http.StatusNotFound, errorResponse(err))
+		return
+	}
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	res := domain.ListUserUrlsResponse{
+		UserID: authPayload.UserID,
+		Urls:   urls,
+	}
+
+	ctx.JSON(http.StatusOK, res)
+}
+
+// @Summary     UpdateOrgUrl
+// @Description Update org url by id
+// @Tags  	    urls
+// @Accept      json
+// @Produce     json
+// @Param 		Authorization	header 	string  true "Authorization header using the Bearer scheme"
+// @Param 		EnterDetails	body 	domain.UpdateOrgUrlRequest true "UpdateOrgUrl"
+// @Success     200 {object} domain.Url
+// @Failure     500 {object} ErrorResponse
+// @Router      /urls/update [POST]
 func (h *Handler) updateOrgUrl(ctx *gin.Context) {
 	var req domain.UpdateOrgUrlRequest
 
@@ -103,6 +173,16 @@ func (h *Handler) updateOrgUrl(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, updUrl)
 }
 
+// @Summary     DeleteUrl
+// @Description Delete url by id
+// @Tags  	    urls
+// @Accept      json
+// @Produce     json
+// @Param 		Authorization	header 	string  true "Authorization header using the Bearer scheme"
+// @Param 		id	path 	int true "ID"
+// @Success     200 {object} nil
+// @Failure     500 {object} ErrorResponse
+// @Router      /urls [DELETE]
 func (h *Handler) deleteUrl(ctx *gin.Context) {
 	var req domain.DeleteUrlRequest
 

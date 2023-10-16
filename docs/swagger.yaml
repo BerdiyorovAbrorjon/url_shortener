@@ -1,0 +1,303 @@
+basePath: /
+definitions:
+  domain.CreateUrlRequest:
+    properties:
+      org_url:
+        type: string
+    required:
+    - org_url
+    type: object
+  domain.GetUrlByIdRequest:
+    properties:
+      id:
+        minimum: 1
+        type: integer
+    required:
+    - id
+    type: object
+  domain.ListUserUrlsRequest:
+    properties:
+      limit:
+        minimum: 1
+        type: integer
+      offset:
+        type: integer
+    required:
+    - limit
+    type: object
+  domain.ListUserUrlsResponse:
+    properties:
+      urls:
+        items:
+          $ref: '#/definitions/domain.Url'
+        type: array
+      user_id:
+        type: integer
+    type: object
+  domain.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  domain.LoginResponse:
+    properties:
+      access_token:
+        type: string
+      user:
+        $ref: '#/definitions/domain.UserResponse'
+    type: object
+  domain.SignupRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  domain.SignupResponse:
+    properties:
+      access_token:
+        type: string
+      user:
+        $ref: '#/definitions/domain.UserResponse'
+    type: object
+  domain.UpdateOrgUrlRequest:
+    properties:
+      id:
+        minimum: 1
+        type: integer
+      new_org_url:
+        type: string
+    required:
+    - id
+    - new_org_url
+    type: object
+  domain.Url:
+    properties:
+      clicks:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      org_url:
+        type: string
+      short_url:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  domain.UserResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  http.ErrorResponse:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Shortening a long url and managing access to it
+  title: Url Shortener API
+  version: "1.0"
+paths:
+  /urls:
+    delete:
+      consumes:
+      - application/json
+      description: Delete url by id
+      parameters:
+      - description: Authorization header using the Bearer scheme
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: DeleteUrl
+      tags:
+      - urls
+    get:
+      consumes:
+      - application/json
+      description: Get urls of user
+      parameters:
+      - description: Authorization header using the Bearer scheme
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ListUserUrls
+        in: body
+        name: EnterDetails
+        required: true
+        schema:
+          $ref: '#/definitions/domain.ListUserUrlsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.ListUserUrlsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: ListUserUrls
+      tags:
+      - urls
+    post:
+      consumes:
+      - application/json
+      description: Create new url
+      parameters:
+      - description: Authorization header using the Bearer scheme
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: CreateUrl
+        in: body
+        name: EnterDetails
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateUrlRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Url'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: CreateUrl
+      tags:
+      - urls
+  /urls/update:
+    post:
+      consumes:
+      - application/json
+      description: Update org url by id
+      parameters:
+      - description: Authorization header using the Bearer scheme
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: UpdateOrgUrl
+        in: body
+        name: EnterDetails
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateOrgUrlRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Url'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: UpdateOrgUrl
+      tags:
+      - urls
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: Login user
+      operationId: login
+      parameters:
+      - description: Login
+        in: body
+        name: EnterDetails
+        required: true
+        schema:
+          $ref: '#/definitions/domain.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.LoginResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: Login
+      tags:
+      - users
+  /users/signup:
+    post:
+      consumes:
+      - application/json
+      description: Signup new user
+      parameters:
+      - description: Signup
+        in: body
+        name: EnterDetails
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SignupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.SignupResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: Signup
+      tags:
+      - users
+swagger: "2.0"

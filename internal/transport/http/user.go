@@ -6,7 +6,6 @@ import (
 
 	"github.com/BerdiyorovAbrorjon/url-shortener/internal/domain"
 	"github.com/BerdiyorovAbrorjon/url-shortener/internal/repository/pgstore"
-	"github.com/BerdiyorovAbrorjon/url-shortener/pkg/token"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,6 +19,15 @@ func newUserResponse(user domain.User) domain.UserResponse {
 	}
 }
 
+// @Summary     Signup
+// @Description Signup new user
+// @Tags  	    users
+// @Accept      json
+// @Produce     json
+// @Param 		EnterDetails	body 	domain.SignupRequest true "Signup"
+// @Success     200 {object} domain.SignupResponse
+// @Failure     500 {object} ErrorResponse
+// @Router      /users/signup [post]
 func (h *Handler) signUp(ctx *gin.Context) {
 	var req domain.SignupRequest
 
@@ -53,6 +61,16 @@ func (h *Handler) signUp(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
+// @Summary     Login
+// @Description Login user
+// @ID          login
+// @Tags  	    users
+// @Accept      json
+// @Produce     json
+// @Param 		EnterDetails	body 	domain.LoginRequest true "Login"
+// @Success     200 {object} domain.LoginResponse
+// @Failure     500 {object} ErrorResponse
+// @Router      /users/login [post]
 func (h *Handler) login(ctx *gin.Context) {
 	var req domain.LoginRequest
 
@@ -80,35 +98,6 @@ func (h *Handler) login(ctx *gin.Context) {
 	res := domain.LoginResponse{
 		AccessToken: token,
 		User:        newUserResponse(user),
-	}
-
-	ctx.JSON(http.StatusOK, res)
-}
-
-func (server *Handler) listUserUrls(ctx *gin.Context) {
-	var req domain.ListUserUrlsRequest
-
-	err := ctx.ShouldBindJSON(&req)
-
-	if handleBindErr(ctx, err) {
-		return
-	}
-
-	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
-
-	urls, err := server.service.User.ListUserUrls(ctx, authPayload.UserID, req.Limit, req.Offset)
-	if err == sql.ErrNoRows {
-		ctx.JSON(http.StatusNotFound, errorResponse(err))
-		return
-	}
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	res := domain.ListUserUrlsResponse{
-		UserID: authPayload.UserID,
-		Urls:   urls,
 	}
 
 	ctx.JSON(http.StatusOK, res)

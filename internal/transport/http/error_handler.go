@@ -7,12 +7,19 @@ import (
 	"github.com/go-playground/validator"
 )
 
+type ErrorResponse struct {
+	Error   string `json:"error"`
+	Message string `json:"message"`
+}
+
 func handleBindErr(ctx *gin.Context, err error) bool {
 	if ctx.ContentType() != gin.MIMEJSON {
-		ctx.JSON(http.StatusUnsupportedMediaType, gin.H{
-			"type":    "UNSUPPORTED_PAYLOAD_TYPE",
-			"message": "Invalid content type",
-		})
+		ctx.JSON(http.StatusUnsupportedMediaType,
+			ErrorResponse{
+				Error:   "UNSUPPORTED_PAYLOAD_TYPE",
+				Message: "Invalid content type",
+			},
+		)
 		return true
 	}
 
@@ -31,10 +38,12 @@ func handleBindErr(ctx *gin.Context, err error) bool {
 		return true
 	}
 
-	ctx.JSON(http.StatusBadRequest, gin.H{
-		"type":    "VALIDATION",
-		"message": err.Error(),
-	})
+	ctx.JSON(http.StatusBadRequest,
+		ErrorResponse{
+			Error:   "VALIDATION",
+			Message: err.Error(),
+		},
+	)
 	return true
 }
 
@@ -56,8 +65,8 @@ func parseValidationErrors(errs validator.ValidationErrors) []invalidArgument {
 	return invalidArgs
 }
 
-func errorResponse(err error) gin.H {
-	return gin.H{
-		"error": err.Error(),
+func errorResponse(err error) ErrorResponse {
+	return ErrorResponse{
+		Message: err.Error(),
 	}
 }

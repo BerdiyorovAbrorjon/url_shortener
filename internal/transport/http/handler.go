@@ -4,9 +4,12 @@ import (
 	"net/http"
 
 	"github.com/BerdiyorovAbrorjon/url-shortener/config"
+	_ "github.com/BerdiyorovAbrorjon/url-shortener/docs"
 	"github.com/BerdiyorovAbrorjon/url-shortener/internal/service"
 	"github.com/BerdiyorovAbrorjon/url-shortener/pkg/token"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Handler struct {
@@ -25,8 +28,6 @@ func NewHandler(cfg config.Config, service *service.Service, tokenMaker token.Ma
 }
 
 func (h *Handler) InitRouter() *gin.Engine {
-	// docs.SwaggerInfo.Host = fmt.Sprintf("%s:%d", host, port)
-
 	// Init gin handler
 	if h.cfg.AppMode == config.ProdMode {
 		gin.SetMode(gin.ReleaseMode)
@@ -35,9 +36,14 @@ func (h *Handler) InitRouter() *gin.Engine {
 	router := gin.New()
 	router.ContextWithFallback = true
 
-	//TODO router init
+	// Options
+	router.Use(gin.Logger())
+	router.Use(gin.Recovery())
 
-	// router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	//Swagger
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	//Health
 	router.GET("/health", func(ctx *gin.Context) {
 		ctx.Status(http.StatusOK)
 	})
@@ -47,6 +53,12 @@ func (h *Handler) InitRouter() *gin.Engine {
 	return router
 }
 
+// Swagger spec:
+// @title       Url Shortener API
+// @description Shortening a long url and managing access to it
+// @version     1.0
+// @host        localhost:8080
+// @BasePath    /
 func (h *Handler) setupRouter(router *gin.Engine) {
 
 	router.POST("/users/signup", h.signUp)
