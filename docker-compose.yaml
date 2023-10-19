@@ -1,0 +1,29 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:12-alpine
+    environment:
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_USER=root
+      - POSTGRES_DB=url_shortener
+    ports:
+      - "5432:5432"
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: always
+  
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_SOURCE=postgresql://root:secret@host.docker.internal:5432/url_shortener?sslmode=disable
+      - REDIS_ADDRESS=host.docker.internal:6379
+    depends_on:
+      - postgres
+      - redis
+    command: ["/app/main"]

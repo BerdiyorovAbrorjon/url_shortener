@@ -1,4 +1,4 @@
-.PHONY: postgres createdb opendb dropdb migrate-up migrate-down server
+.PHONY: postgres createdb opendb dropdb migrate-up migrate-down sqlc mock server
 
 postgres:
 	docker run --name urlshortener-postgres -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:12-alpine

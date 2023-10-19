@@ -18,6 +18,9 @@ import (
 	"github.com/BerdiyorovAbrorjon/url-shortener/pkg/httpserver"
 	"github.com/BerdiyorovAbrorjon/url-shortener/pkg/logger"
 	"github.com/BerdiyorovAbrorjon/url-shortener/pkg/token"
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 func Run() {
@@ -89,4 +92,17 @@ func Run() {
 		l.Error(fmt.Errorf("app - Run - httpServer.Shutdown: %w", err))
 	}
 
+	runDBMigration(l, cfg.MigrationUrl, cfg.DbSource)
+}
+
+func runDBMigration(l *logger.Logger, migrationUrl, dbSource string) {
+	migration, err := migrate.New(
+		migrationUrl, dbSource)
+	if err != nil {
+		l.Fatal(fmt.Errorf("app - Run - runMigration: cannot create database migration - %w", err))
+	}
+	if err = migration.Up(); err != nil && err != migrate.ErrNoChange {
+		l.Fatal(fmt.Errorf("app - Run - runMigration: cannot migrate up -  %w", err))
+	}
+	l.Info("db migrated successfully")
 }
